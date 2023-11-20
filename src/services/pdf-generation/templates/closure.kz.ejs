@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+        />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Акт</title>
+        <style>
+            * {
+                font-size: 9px;
+                font-family: Helvetica, serif;
+            }
+            body {
+                margin: 10px;
+            }
+            h1 {
+                text-align: center;
+                margin-bottom: 0;
+            }
+            h1 + span {
+                text-align: center;
+            }
+            table {
+                margin-top: 5px;
+                width: 100%;
+                border: 1px solid;
+                border-collapse: collapse;
+                margin-bottom: 10px;
+            }
+            p {
+                margin: 4px 0;
+            }
+            td,
+            th {
+                text-align: center;
+                border: 1px solid;
+                padding: 5px;
+            }
+            table td {
+                font-size: 8px;
+            }
+            .center {
+                width: 100%;
+                display: inline-block;
+                text-align: center;
+                margin-bottom: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Акт об оказании услуг №<%= bill.invoiceNumber %></h1>
+        <span class="center"
+            >к <%= contract.contractType === 'STANDARD' ? 'публичному' : '' %>
+            договору возмездного оказания услуг <%= contract.contractType !==
+            'STANDARD' ? '№' + contract.contractNumber : '' %> от <%= new
+            Date(contract.startDate).toLocaleDateString('ru') %>г.</span
+        >
+        <p><%= today %><span style="float: right">г. Алматы</span></p>
+        <p>
+            Исполнитель: <%= contacts.companyName %>, БИН: <%=
+            contacts.companyTaxNumber %>, юридический адрес: <%=
+            contacts.companyAddress %>, ИИК: <%= contacts.accountNumber %>,
+            банк: <%= contacts.bankName %>, БИК: <%= contacts.BIC %>
+        </p>
+        <p>
+            Заказчик: <%= customer.companyName %>, БИН: <%=
+            customer.companyTaxNumber %>, юридический адрес: <%=
+            customer.companyAddress %>, ИИК: <%= customer.accountNumber %>,
+            банк: <%= customer.bankName %>, БИК: <%= customer.BIC %>
+        </p>
+        <p></p>
+        Настоящий акт составлен о том, что согласно <%= contract.contractType
+        === 'STANDARD' ? 'публичному' : '' %> договору возмездного оказания
+        услуг <%= contract.contractType !== 'STANDARD' ? '№' +
+        contract.contractNumber : '' %> от <%= new
+        Date(contract.startDate).toLocaleDateString('ru') %>г. Исполнителем
+        оказаны следующие услуги:
+        <table
+            class="line-table"
+            style="border: 1px solid; border-collapse: collapse"
+        >
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th width="50%">Наименование услуги</th>
+                    <th>Количество, <br />шт.</th>
+                    <th>
+                        Цена без НДС,<br />
+                        тенге
+                    </th>
+                    <th>
+                        Ставка НДС,<br />
+                        %
+                    </th>
+                    <th>
+                        Сумма НДС,<br />
+                        тенге.
+                    </th>
+                    <th>
+                        Всего с НДС,<br />
+                        тенге.
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for(let i = 0; i < lines.length; i++ ) { %> <% let line =
+                lines[i]; %>
+                <tr>
+                    <td><%= i + 1 %></td>
+                    <td>
+                        Услуга по обеспечению возможности размещения рекламных
+                        объявлений Заказчиком и/или третьими лицами в Системе
+                        <%= line.type %> рекламы <%= line.name %> согласно <%=
+                        contract.contractType === 'STANDARD' ? 'публичному' : ''
+                        %> договору возмездного оказания услуг
+                    </td>
+                    <td>1</td>
+                    <td><%= parseFloat(line.sum).toFixed(2) %></td>
+                    <td><%= parseFloat(line.vat) %></td>
+                    <td><%= parseFloat(line.totalVat).toFixed(2) %></td>
+                    <td><%= parseFloat(line.total).toFixed(2) %></td>
+                </tr>
+                <% } %>
+
+                <tr>
+                    <td style="text-align: right" colspan="6">
+                        <b>Итого: </b>
+                    </td>
+                    <td><%= total.total.toFixed(2) %></td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            Оказанные услуги удовлетворяют условиям договора и оказаны
+            надлежащим образом (по объему, качеству и срокам). Заказчик к
+            качеству, срокам оказания и объему услуг претензий не имеет.
+        </p>
+        <p>
+            <b>Общая стоимость оказанных услуг с учетом НДС:</b> <%=
+            total.total.toFixed(2) %> (<%= total.totalString %>), в том числе
+            НДС <%= settingsVat %>% <%= total.vat.toFixed(2) %> (<%=
+            total.vatString %>)
+        </p>
+        <p>
+            Настоящий акт составлен Исполнителем единолично в одностороннем
+            порядке, руководствуясь п.5.10. Договора, а также на основании
+            Закона Республики Беларусь «О бухгалтерском учете и отчетности» (п.
+            6 ст. 10) и постановления Министерства финансов Республики Беларусь
+            от 12.02.2018 № 13 «О единоличном составлении первичных учетных
+            документов».
+        </p>
+        <br />
+        <p><b>Исполнитель:</b></p>
+        <p><%= contacts.companyName %></p>
+        <br />
+        <% if (contract.contractType === 'STANDARD') { %>
+        <p
+            style="
+                margin: 35px 0;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+            "
+        >
+            <span>Директор</span>
+            <img
+                style="vertical-align: middle; padding: 0 15px"
+                width="150px"
+                src="data:image/png;base64,<%= image %>"
+            />
+            <span><%= contacts.contactName %></span>
+        </p>
+        <% } else { %>
+        <p>Директор ______________ <%= contacts.contactName %></p>
+        <% }%>
+    </body>
+</html>

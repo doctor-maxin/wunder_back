@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+        />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Счет</title>
+        <style>
+            * {
+                font-size: 9px;
+                font-family: Helvetica, serif;
+            }
+
+            body {
+                margin: 10px;
+            }
+            .center {
+                text-align: center;
+                font-weight: bold;
+            }
+
+            table {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            p {
+                margin: 2px 0;
+            }
+            .line-table td,
+            .line-table th {
+                text-align: center;
+                border: 1px solid;
+                padding: 5px;
+            }
+            .line-table td {
+                font-size: 8px;
+            }
+        </style>
+    </head>
+    <body>
+        <p class="center">Счет №<%= bill.invoiceNumber %></p>
+        <p class="center">
+            к <%= contract.contractType === 'STANDARD' ? 'публичному' : '' %>
+            договору возмездного оказания услуг <%= contract.contractType !==
+            'STANDARD' ? '№' + contract.contractNumber : '' %> от <%=
+            contract.startDate.toLocaleDateString('ru') %> г.
+        </p>
+        <p><%= today %> <span style="float: right">г. Алматы</span></p>
+        <p><b>Реквизиты Сторон для оплаты:</b></p>
+        <table>
+            <tr>
+                <td width="50%">
+                    <b>Исполнитель:</b><br />
+                    <%= contacts.companyName %> <br />
+                    БИН: <%= contacts.companyTaxNumber %><br />
+                    Юридический адрес: <%= contacts.companyAddress %><br />
+                    ИИК: <%= contacts.accountNumber %><br />
+                    Банк: <%= contacts.bankName %><br />
+                    БИК: <%= contacts.BIC %><br />
+                </td>
+                <td style="padding-left: 15px" width="50%">
+                    <b>Заказчик:</b><br />
+                    <%= customer.companyName %> <br />
+                    БИН: <%= customer.companyTaxNumber %><br />
+                    Юридический адрес: <%= customer.companyAddress %><br />
+                    ИИК: <%= customer.accountNumber %><br />
+                    Банк: <%= customer.bankName %><br />
+                    БИК: <%= customer.BIC %><br />
+                </td>
+            </tr>
+        </table>
+        <table
+            class="line-table"
+            style="border: 1px solid; border-collapse: collapse"
+        >
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th width="50%">Наименование услуги</th>
+                    <th>Количество, <br />шт.</th>
+                    <th>
+                        Цена без НДС,<br />
+                        тенге
+                    </th>
+                    <th>
+                        Ставка НДС,<br />
+                        %
+                    </th>
+                    <th>
+                        Сумма НДС,<br />
+                        тенге.
+                    </th>
+                    <th>
+                        Всего с НДС,<br />
+                        тенге.
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for(let i = 0; i < lines.length; i++ ) { %> <% let line =
+                lines[i]; %>
+                <tr>
+                    <td><%= i + 1 %></td>
+                    <td>
+                        Услуга по обеспечению возможности размещения рекламных
+                        объявлений Заказчиком и/или третьими лицами в Системе
+                        <%= line.type %> рекламы <%= line.name ? line.name :
+                        line.system %> согласно <%= contract.contractType ===
+                        'STANDARD' ? 'публичному' : '' %> договору возмездного
+                        оказания услуг
+                    </td>
+                    <td>1</td>
+                    <td><%= parseFloat(line.sum).toFixed(2) %></td>
+                    <td><%= parseFloat(line.vat) %></td>
+                    <td><%= parseFloat(line.totalVat).toFixed(2) %></td>
+                    <td><%= parseFloat(line.total).toFixed(2) %></td>
+                </tr>
+                <% } %>
+                <tr>
+                    <td style="text-align: right" colspan="6">
+                        <b>Итого: </b>
+                    </td>
+                    <td><%= total.total.toFixed(2) %></td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            Всего к оплате с НДС: <%= total.total.toFixed(2) %> (<%=
+            total.totalString %>), в том числе НДС <%= settingsVat %>% <%=
+            total.vat.toFixed(2) %> <% if (total.vatString) { %> (<%=
+            total.vatString %>)<% } %>. <br />
+            Счет действителен в течение 3 (трех) дней с момента выставления.
+            Настоящий счет является неотъемлемой частью <%=
+            contract.contractType === 'STANDARD' ? 'публичного' : '' %> договору
+            возмездного оказания услуг <%= contract.contractType !== 'STANDARD'
+            ? '№' + contract.contractNumber : '' %> от <%=
+            contract.startDate.toLocaleDateString('ru') %>г., размещенного на
+            сайте Исполнителя. Оплатив счет, Заказчик соглашается с условиями
+            данного <%= contract.contractType === 'STANDARD' ? 'публичного' : ''
+            %> договора оказания услуг.
+        </p>
+        <p
+            style="
+                margin: 35px 0;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+            "
+        >
+            <span>Директор</span>
+            <img
+                style="vertical-align: middle; padding: 0 15px"
+                width="150px"
+                src="data:image/png;base64,<%= image %>"
+            />
+            <span><%= contacts.contactName %></span>
+        </p>
+        <p>
+            Внимание! В назначении платежа, необходимо указать данные в
+            следующем формате: <br />
+            Оплата по счету <%= bill.invoiceNumber %> от <%=
+            bill.createdAt.toLocaleDateString('ru') %>г. <br />
+            Если данные не будут указаны, поступление денег на счет может занять
+            до 5 рабочих дней
+        </p>
+    </body>
+</html>

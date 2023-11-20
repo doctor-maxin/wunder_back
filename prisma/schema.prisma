@@ -1,0 +1,394 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int            @id @default(autoincrement())
+  email        String         @unique @db.VarChar(200)
+  role         Role           @default(CUSTOMER)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  secret       String?        @db.VarChar(200)
+  admin        Admin?
+  customer     Customer?
+  group        CustomerGroup?
+  refreshToken RefreshToken[]
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  expiresAt DateTime
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Region {
+  id             Int              @id @default(autoincrement())
+  name           String           @unique
+  settings       Settings[]
+  systemSettings SystemSettings[]
+  contacts       Contacts?
+  sign           String
+  currency       String           @default("BYN")
+  isActive       Boolean          @default(false)
+}
+
+model Rates {
+  id       Int      @id @default(autoincrement())
+  fromRate String
+  usdRate  String
+  rubRate  String
+  eurRate  String
+  date     DateTime @default(now())
+}
+
+model CustomerCandidate {
+  id                 Int     @id @default(autoincrement())
+  regionName         String  @default("BY")
+  companyName        String
+  companyTaxNumber   String
+  contactEmail       String
+  contactName        String
+  contactPhoneNumber String
+  taskId             Int?
+  customerId         Int?
+  publicAgree        Boolean @default(false)
+}
+
+model CustomerGroup {
+  id           Int        @id @default(autoincrement())
+  userId       Int        @unique
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isActive     Boolean    @default(false)
+  companyName  String
+  companyEmail String
+  departments  Customer[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Customer {
+  id                        Int                        @id @default(autoincrement())
+  userId                    Int                        @unique
+  groupId                   Int?
+  isActive                  Boolean                    @default(false)
+  isNew                     Boolean                    @default(false)
+  companyName               String
+  accountNumber             String
+  dateOfBirth               DateTime?
+  createdAt                 DateTime                   @default(now())
+  updatedAt                 DateTime                   @updatedAt
+  BIC                       String
+  bankAddress               String
+  bankName                  String
+  companyAddress            String
+  companyEmail              String
+  companyPhoneNumber        String?
+  companyTaxNumber          String
+  contactEmail              String
+  contactName               String
+  contactPhoneNumber        String
+  postalAddress             String
+  responsiblePersonFullName String
+  responsiblePersonPosition String
+  signatureDocumentType     String
+  personalAgree             Boolean?                   @default(false)
+  publicAgree               Boolean?                   @default(false)
+  planFixId                 Int                        @default(0)
+  user                      User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerGroup             CustomerGroup?             @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  accounts                  Account[]
+  contracts                 Contract[]
+  systemSettings            CustomerToSystemSettings[]
+  settings                  Settings[]
+  tasks                     Task[]
+  invoices                  Invoice[]
+}
+
+model Admin {
+  id     Int    @id @default(autoincrement())
+  userId Int    @unique
+  name   String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Settings {
+  id                  Int       @id @default(autoincrement())
+  emailFrom           String    @default("Patform Wunder")
+  planFixManagerId    String    @default("")
+  financialManagerId  String    @default("")
+  telegramLink        String    @default("")
+  whatappText         String?
+  whatappPhone        String?
+  telPhone            String?
+  regionId            Int?
+  region              Region?   @relation(fields: [regionId], references: [id])
+  global              Boolean   @default(false)
+  ratesAdds           Float     @default(0)
+  freeHours           Int       @default(0)
+  contractId          Int?      @unique
+  freeTimes           Int       @default(0)
+  hourCost            Decimal   @default(0) @db.Money
+  vat                 Float     @default(0)
+  payType             PayType   @default(PREPAY)
+  allowTransfer       Boolean   @default(true)
+  paymentWaitingHours Int       @default(72)
+  balanceUpdateDelay  Int       @default(10)
+  projectId           Int       @default(0)
+  isEDNActive         Boolean   @default(false)
+  is1CActive          Boolean   @default(false)
+  customerId          Int?
+  customer            Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  contract            Contract?
+  personalAgree       String?
+  publicContract      String?
+}
+
+model Contacts {
+  id               Int     @id @default(autoincrement())
+  contactName      String?
+  BIC              String?
+  bankName         String?
+  accountNumber    String?
+  companyAddress   String?
+  companyTaxNumber String?
+  companyName      String
+  regionId         Int?    @unique
+  region           Region? @relation(fields: [regionId], references: [id], onDelete: Cascade)
+}
+
+model SystemSettings {
+  id         Int                 @id @default(autoincrement())
+  systemName String
+  regionId   Int?
+  currency   String?             @default("BYN")
+  isActive   Boolean             @default(false)
+  minSum     Decimal             @default(0) @db.Money
+  region     Region?             @relation(fields: [regionId], references: [id])
+  system     System              @relation(fields: [systemName], references: [name], onDelete: Cascade)
+  lines      SysemSettingsLine[]
+
+  @@unique([regionId, systemName])
+}
+
+model SysemSettingsLine {
+  id               Int            @id @default(autoincrement())
+  discount         Int            @default(0)
+  systemSettings   SystemSettings @relation(fields: [systemSettingsId], references: [id], onDelete: Cascade)
+  commission       Int            @default(0)
+  fromAmount       Decimal        @db.Decimal(65, 30)
+  toAmount         Decimal        @db.Decimal(65, 30)
+  systemSettingsId Int
+  systemName       String?        @default("")
+}
+
+model SysemSettingsCustomerLine {
+  id               Int                      @id @default(autoincrement())
+  discount         Int                      @default(0)
+  systemSettings   CustomerToSystemSettings @relation(fields: [systemSettingsId], references: [id], onDelete: Cascade)
+  commission       Int                      @default(0)
+  fromAmount       Decimal                  @db.Decimal(65, 30)
+  toAmount         Decimal                  @db.Decimal(65, 30)
+  systemSettingsId Int
+  systemName       String?                  @default("")
+}
+
+model CustomerToSystemSettings {
+  id         Int                         @id @default(autoincrement())
+  systemName String
+  customerId Int?
+  minSum     Decimal                     @default(0) @db.Money
+  contractId Int?
+  isActive   Boolean                     @default(false)
+  Contract   Contract?                   @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  customer   Customer?                   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  system     System                      @relation(fields: [systemName], references: [name], onDelete: Cascade)
+  lines      SysemSettingsCustomerLine[]
+
+  @@unique([contractId, systemName])
+}
+
+model System {
+  id               Int                        @id @default(autoincrement())
+  name             String                     @unique
+  accounts         Account[]
+  customerSettings CustomerToSystemSettings[]
+  settings         SystemSettings[]
+}
+
+model Account {
+  id                Int       @id @default(autoincrement())
+  customerId        Int
+  systemId          Int
+  email             String?
+  accountName       String
+  site              String
+  externalAccountId String?
+  externalClientId  String?
+  externalAgency    String?
+  externalRegion    String?
+  balance           Float     @default(0.00)
+  contractId        Int?
+  isActive          Boolean   @default(false)
+  login             String?
+  password          String?
+  taskId            Int?      @unique
+  customer          Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  system            System    @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  task              Task?     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  contract          Contract? @relation(fields: [contractId], references: [id], onDelete: Cascade)
+}
+
+model Contract {
+  id              Int                        @id @unique @default(autoincrement())
+  customerId      Int
+  contractService String?
+  contractNumber  String?
+  contractType    ContractType               @default(STANDARD)
+  isActive        Boolean                    @default(true)
+  settingsId      Int                        @unique @default(0)
+  expireDate      DateTime?
+  startDate       DateTime                   @default(now())
+  customer        Customer                   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  settings        Settings                   @relation(fields: [settingsId], references: [id], onDelete: Cascade)
+  systemSettings  CustomerToSystemSettings[]
+  documents       Document[]
+  accounts        Account[]
+}
+
+model Document {
+  id         Int      @id @default(autoincrement())
+  contractId Int
+  link       String
+  name       String   @default("")
+  comment    String?
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+}
+
+model Invoice {
+  id                   Int           @id @default(autoincrement())
+  customerId           Int
+  status               InvoiceStatus @default(NEW)
+  createdAt            DateTime      @default(now())
+  taskId               Int?          @unique
+  contractId           Int?
+  currency             String        @default("BYN")
+  invoiceNumber        String        @default("0")
+  lines                Json
+  cachedSystemSettings Json
+  rates                InvoiceRates?
+  isVisible            Boolean       @default(false)
+  hasOriginal          Boolean       @default(false)
+
+  task            Task?             @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  customer        Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  invoiceDocument InvoiceDocument[]
+}
+
+model InvoiceRates {
+  id        Int     @id @default(autoincrement())
+  rubRate   String  @default("1")
+  eurRate   String  @default("1")
+  usdRate   String  @default("1")
+  invoiceId Int     @unique
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}
+
+model InvoiceDocument {
+  id        Int                 @id @default(autoincrement())
+  link      String
+  name      String
+  type      InvoiceDocumentType
+  invoice   Invoice             @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoiceId Int
+}
+
+model Task {
+  id                  Int             @unique
+  type                Int
+  customerId          Int?
+  managerId           String
+  parentId            Int?
+  invoiceId           Int?
+  accountId           Int?
+  customerCandidateId Int?
+  counterparty        Customer?       @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  account             Account?
+  paymentWaiting      PaymentWaiting?
+  createdAt           DateTime        @default(now())
+  invoice             Invoice?
+}
+
+model PaymentWaiting {
+  id         Int      @id @default(autoincrement())
+  taskId     Int      @unique
+  expireDate DateTime
+  isActive   Boolean  @default(true)
+  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+model Knowledge {
+  id         Int               @id @default(autoincrement())
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  title      String            @db.VarChar(255)
+  body       String
+  preview    String?
+  category   KnowledgeCategory @relation(fields: [categoryID], references: [id], onDelete: Cascade)
+  categoryID Int
+  toMain     Boolean           @default(false)
+  sort       Int               @default(500)
+}
+
+model KnowledgeCategory {
+  id    Int         @id @default(autoincrement())
+  sort  Int         @default(500)
+  name  String      @db.VarChar(64)
+  posts Knowledge[]
+}
+
+enum SignedDocumentsStatus {
+  WAITING
+  SIGNED
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  GROUP
+}
+
+enum ContractType {
+  STANDARD
+  CUSTOM
+}
+
+enum PayType {
+  PREPAY
+  POSTPAY
+  EXPENSES
+}
+
+enum InvoiceStatus {
+  NEW
+  PAID
+  CANCELED
+  AVOIDED
+  WAITING
+  SIGNED
+  COMPLETED
+}
+
+enum InvoiceDocumentType {
+  BILL
+  ACT
+  SIGNED_BILL
+  SIGNED_ACT
+}
