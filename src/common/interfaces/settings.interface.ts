@@ -16,6 +16,8 @@ export interface IRegionSettings extends ISettings {
   region?: Pick<IRegion, 'id' | 'name' | 'sign'>;
   paymentWaitingHours: number;
   balanceUpdateDelay: number;
+  complaintForm: boolean;
+  complaintEmail: string;
 }
 
 export interface ICustomerSettings extends ISettings {

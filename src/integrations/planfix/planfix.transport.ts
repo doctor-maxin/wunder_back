@@ -32,10 +32,6 @@ export class PlanFixTransport {
         headers,
       },
     );
-    console.log(
-      'response',
-      `${this.baseURL}/${id}?fields=status,assigner,counterparty,project,parent`,
-    );
 
     if (response.status === 200) {
       const responseData = (await response.json()) as PFGetTaskResult;
@@ -65,7 +61,7 @@ export class PlanFixTransport {
     const response = await fetch(this.baseURL + taskId, {
       body: JSON.stringify(data),
       headers,
-      method: 'post',
+      method: 'POST',
     });
 
     if (response.status === 200) {
@@ -110,7 +106,7 @@ export class PlanFixTransport {
     const response = await fetch(this.baseURL, {
       headers,
       body: JSON.stringify(data),
-      method: 'post',
+      method: 'POST',
     });
     if (response.status === 201) {
       const responseData = (await response.json()) as CreatePFTaskResult;

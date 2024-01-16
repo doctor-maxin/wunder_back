@@ -9,7 +9,7 @@ import { SignUpDto } from '../../auth/dtos/signup.dto';
 
 @Injectable()
 export class CustomerCandidateRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   public async findById(id: number): Promise<ICustomerCandidate | void> {
     return this.prisma.customerCandidate.findUnique({ where: { id } });

@@ -195,6 +195,7 @@ async function main() {
   const settings = await createRegionSettings();
   const region = await createRegion(settings.id);
   const admin = await createAdmin();
+  console.log('admin', admin)
   await createSystems();
   await createSystemSettings();
 }

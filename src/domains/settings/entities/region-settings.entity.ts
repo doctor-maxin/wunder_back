@@ -27,8 +27,7 @@ export class RegionSettingEntity
     'personalAgree',
     'publicContract',
   ] as const)
-  implements IRegionSettings
-{
+  implements IRegionSettings {
   @ApiProperty({
     title: 'Почта от кого будут поступать письма',
     example: 'info@wunder.com',
@@ -94,6 +93,18 @@ export class RegionSettingEntity
   })
   @IsNumber()
   balanceUpdateDelay: number;
+
+  @IsString()
+  @ApiProperty({
+    description: 'Email для жалоб'
+  })
+  complaintEmail: string;
+
+  @IsBoolean()
+  @ApiProperty({
+    description: 'Включена форма жалоб'
+  })
+  complaintForm: boolean;
 }
 
 export class UpdateRegionSettings {

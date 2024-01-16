@@ -7,6 +7,7 @@ import { SellRatesEntity } from '../entities/sell-rates.entity';
 import { RatesFilters } from '../entities/rates-filters.entity';
 import { RatesRepository } from '../rates.respository';
 import { RateEntity } from '../entities/rate.entity';
+import { CreateRateDto } from '../dtos/create-rate.dto';
 
 @Injectable()
 export class RatesService {
@@ -15,7 +16,19 @@ export class RatesService {
     private readonly regionRepository: RegionsRepository,
     private readonly grabber: RatesGrabber,
     private readonly ratesRepository: RatesRepository,
-  ) {}
+  ) { }
+
+  public async addRecord(data: CreateRateDto): Promise<RateEntity> {
+    const globalSettings = await this.regionRepository.activeRegion()
+
+    return this.ratesRepository.addRecord({
+      eurRate: data.eurRate,
+      rubRate: data.rubRate,
+      usdRate: data.usdRate,
+      fromRate: globalSettings.currency,
+    })
+  }
+
 
   public async getList(params: RatesFilters): Promise<[number, RateEntity[]]> {
     return Promise.all([

@@ -21,6 +21,7 @@ import {
 } from '../../common/events/events';
 import { ICustomer } from '../../common/interfaces/user.interface';
 import { InvoiceWithAccountDto } from './dto/invoice-with-account.dto';
+import { RatesRepository } from '../rates/rates.respository';
 // import {PrismaService} from "../prisma/prisma.service";
 // import {
 //   Acts,
@@ -58,6 +59,7 @@ export class InvoiceService {
     private readonly invoiceDocumentRepository: InvoiceDocumentRepository,
     private readonly customerRepository: CustomerRepository,
     private readonly eventEmitter: EventEmitter2,
+    private readonly ratesRepository: RatesRepository,
   ) {}
 
   public async createInvoice(payload: CreateInvoiceDto): Promise<IInvoice> {
@@ -85,6 +87,16 @@ export class InvoiceService {
         systemName: ss.systemName,
       })) as Prisma.JsonArray,
     });
+
+    const regionRates = await this.ratesRepository.getList({
+      limit: 1,
+      skip: 0,
+    });
+
+    const rates = await this.invoiceRepository.createInvoiceRates(
+      invoice.id,
+      regionRates[0],
+    );
     const document = await this.invoiceDocumentRepository.createBillDocument(
       invoice.id,
     );
@@ -97,6 +109,7 @@ export class InvoiceService {
 
     return {
       ...invoice,
+      rates,
       lines: lines,
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore

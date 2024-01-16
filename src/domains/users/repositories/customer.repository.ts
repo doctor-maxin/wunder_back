@@ -21,6 +21,9 @@ export class CustomerRepository {
   public async getCustomerGroup(id: number) {
     return this.prisma.customerGroup.findUnique({
       where: { id },
+      include: {
+        departments: true,
+      },
     });
   }
 

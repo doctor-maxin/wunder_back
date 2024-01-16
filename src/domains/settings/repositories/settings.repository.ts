@@ -116,7 +116,6 @@ export class SettingsRepository {
 
   public async globalSettings(regionId?: number): Promise<IRegionSettings> {
     let regionIdentification = regionId;
-    console.log('global');
 
     if (!regionId) {
       const region = await this.prisma.region.findFirst({

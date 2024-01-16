@@ -29,6 +29,7 @@ import { UnAuthorized } from '../../common/schemas/unauthorized';
 import { UpdateRegionSettings } from '../settings/entities/region-settings.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { WebSocketClient } from '../../services/microservice/websocket.client';
+import { CreateComplaintDto } from '../../common/dtos/create-complaint.dto';
 
 @Controller('regions')
 @ApiTags('REGION API')
@@ -37,7 +38,7 @@ export class RegionsController {
     private readonly regionService: RegionsService,
   ) // private readonly socketClient: WebSocketClient,
   // private readonly eventEmitter: EventEmitter2,
-  {}
+  { }
 
   @Get('/')
   @Public()
@@ -112,5 +113,12 @@ export class RegionsController {
   @ApiBearerAuth()
   async deleteRegion(@Param('id') regionId: string) {
     await this.regionService.deleteRegion(parseInt(regionId));
+  }
+
+  @Public()
+  @Post('/complaint')
+  @ApiOkResponse()
+  public async complaintProcess(@Body() data: CreateComplaintDto) {
+    await this.regionService.createComplaint(data)
   }
 }

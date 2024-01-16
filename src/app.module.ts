@@ -21,6 +21,10 @@ import { AdvertisingModule } from './integrations/advertising/advertising.module
 import { AlfaBankModule } from './integrations/alfabank/payments.module';
 import { EdinModule } from './integrations/edin/edin.module';
 import { PlanFixModule } from './integrations/planfix/planfix.module';
+import { PdfModule } from './services/pdf-generation/pdf.module';
+import { HelpersModule } from './helpers/helpers.module';
+import { OneCModule } from './integrations/1c/1c.module';
+import { AccumulativeDiscount } from './domains/accumulative-discount/accumulative-discount.module';
 
 @Module({
   imports: [
@@ -48,14 +52,18 @@ import { PlanFixModule } from './integrations/planfix/planfix.module';
     KnowledgeModule,
     RatesModule,
     SystemModule,
+    AccumulativeDiscount,
     // Integrations
     AdvertisingModule,
     AlfaBankModule,
     EdinModule,
     PlanFixModule,
+    PdfModule,
+    HelpersModule,
+    OneCModule
   ],
   controllers: [AppController],
   providers: [AppService],
   exports: [CacheModule, AppService],
 })
-export class AppModule {}
+export class AppModule { }

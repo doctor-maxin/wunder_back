@@ -62,15 +62,15 @@ export class CreateUserDto {
   role: Role;
 
   @ApiProperty({
-    oneOf: [
-      { $ref: getSchemaPath(typeof CreateUserAdminPayload) },
-      {
-        $ref: getSchemaPath(typeof CreateUserGroupPayload),
-      },
-      {
-        $ref: getSchemaPath(typeof CreateUserCustomerPayload),
-      },
-    ],
+    // oneOf: [
+    //   { $ref: getSchemaPath(typeof CreateUserAdminPayload) },
+    //   {
+    //     $ref: getSchemaPath(typeof CreateUserGroupPayload),
+    //   },
+    //   {
+    //     $ref: getSchemaPath(typeof CreateUserCustomerPayload),
+    //   },
+    // ],
   })
   @IsObject()
   payload:

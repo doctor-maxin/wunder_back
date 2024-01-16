@@ -18,10 +18,7 @@ async function bootstrap() {
   app.setViewEngine('ejs');
 
   const config = new DocumentBuilder();
-  config.setTitle('Wunder Back API');
-  config.setVersion('2.0');
-  config.addBearerAuth();
-  config.build();
+  config.setTitle('Wunder Back API').setDescription('API...').setVersion('2.0').addBearerAuth().build()
 
   const jwtService = app.get(JwtService);
   const reflector = app.get(Reflector);
@@ -29,14 +26,17 @@ async function bootstrap() {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
   const document = SwaggerModule.createDocument(app, config);
+  console.log(document)
   const redocOptions: RedocOptions = {
     title: 'Wunder Back API',
+    docName: 'doc',
+    redocVersion: '2.0.0',
+    untrustedSpec: true
   };
-
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   await RedocModule.setup('/docs', app, document, redocOptions);
-
+  SwaggerModule.setup('/swagger-docs', app, document);
   const PORT = process.env.PORT || 5000;
 
   await app.listen(PORT);

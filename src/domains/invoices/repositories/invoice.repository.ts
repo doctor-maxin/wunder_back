@@ -141,6 +141,20 @@ export class InvoiceRepository {
     // );
   }
 
+  public async createInvoiceRates(invoiceId: number, regionRates: any) {
+    return this.prisma.invoiceRates.create({
+      data: {
+        invoice: {
+          connect: {
+            id: invoiceId,
+          },
+        },
+        eurRate: regionRates.eurRate,
+        rubRate: regionRates.rubRate,
+        usdRate: regionRates.usdRate,
+      },
+    });
+  }
   public async createInvoice(data: Prisma.InvoiceCreateInput) {
     return this.prisma.invoice.create({ data });
   }

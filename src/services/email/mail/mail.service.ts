@@ -3,6 +3,8 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { PrismaService } from '../../../prisma/prisma.service';
 import * as dotenv from 'dotenv';
 import { SentMessageInfo } from 'nodemailer';
+import { OnEvent } from '@nestjs/event-emitter';
+import { ON_COMPLAINT } from '../../../common/events/events';
 
 dotenv.config();
 
@@ -21,7 +23,7 @@ export class MailService {
   constructor(
     private prisma: PrismaService,
     private mailerService: MailerService,
-  ) {}
+  ) { }
 
   async getFrom() {
     const settings = await this.prisma.settings.findFirst({
@@ -39,6 +41,18 @@ export class MailService {
       template: 'test',
     });
     console.log('R', r);
+  }
+
+  @OnEvent(ON_COMPLAINT)
+  async sendComplaint(data: any) {
+    const from = await this.getFrom();
+
+    await this.mailerService.sendMail({
+      from,
+      to: data.to,
+      subject: data.subject,
+      html: data.content
+    })
   }
 
   async sendCustomerConfirmation(

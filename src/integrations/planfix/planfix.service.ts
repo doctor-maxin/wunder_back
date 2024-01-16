@@ -416,6 +416,7 @@ export class PlanFixService {
 
   @OnEvent(ON_CUSTOMER_COMPLETE_SIGNUP)
   private async onCustomerCompleteSignUp(...event) {
+    console.log(event);
     this.logger.log('Закрытие задачи по регистрации ' + event[0].taskId);
     this.planfixTransport.completePFTask(event[0].taskId);
   }

@@ -33,8 +33,9 @@ export class AccountsService {
     private readonly emailService: EmailService,
     private readonly advertisingService: AdvertisingService, //         private billsRepository: BillsRepository //         private validatorService: ValidatorService, //         private settingsRepository: SettingsRepository, //         private systemSettingsRepository: SystemSettingsRepository, //
     private readonly contractRepository: ContractsRepository, //
-    private readonly customerRepository: CustomerRepository, //         private advertisingService: advertisingService, //         private regionsRepository: RegionsRepository,
-  ) {}
+    private readonly customerRepository: CustomerRepository,
+  ) //         private advertisingService: advertisingService, //         private regionsRepository: RegionsRepository,
+  {}
 
   //
   //     async accountsByCustomerId(customerId: number): Promise<AccountWithSystem[]> {

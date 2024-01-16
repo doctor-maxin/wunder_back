@@ -48,7 +48,7 @@ import { Role } from '@prisma/client';
 @ApiExtraModels(Token)
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Public()
   @ApiOperation({
@@ -92,15 +92,15 @@ export class AuthController {
   @Public()
   @ApiBadRequestResponse({ type: SignInError })
   @ApiForbiddenResponse()
-  @ApiOkResponse({
-    schema: {
-      oneOf: [
-        { $ref: getSchemaPath(UserCustomerEntity) },
-        { $ref: getSchemaPath(UserAdminEntity) },
-        { $ref: getSchemaPath(UserGroupEntity) },
-      ],
-    },
-  })
+  // @ApiOkResponse({
+  //   schema: {
+  //     oneOf: [
+  //       { $ref: getSchemaPath(UserCustomerEntity) },
+  //       { $ref: getSchemaPath(UserAdminEntity) },
+  //       { $ref: getSchemaPath(UserGroupEntity) },
+  //     ],
+  //   },
+  // })
   @ApiOperation({
     summary: 'Создание пользователя',
   })
@@ -182,15 +182,15 @@ export class AuthController {
   @ApiOperation({
     summary: 'Обновление пользователя',
   })
-  @ApiOkResponse({
-    schema: {
-      oneOf: [
-        { $ref: getSchemaPath(UserCustomerEntity) },
-        { $ref: getSchemaPath(UserAdminEntity) },
-        { $ref: getSchemaPath(UserGroupEntity) },
-      ],
-    },
-  })
+  // @ApiOkResponse({
+  //   schema: {
+  //     oneOf: [
+  //       { $ref: getSchemaPath(UserCustomerEntity) },
+  //       { $ref: getSchemaPath(UserAdminEntity) },
+  //       { $ref: getSchemaPath(UserGroupEntity) },
+  //     ],
+  //   },
+  // })
   public async updateUser(
     @AdminOnly() _permission: any,
     @Body() data: UserCustomerEntity | UserAdminEntity | UserGroupEntity,

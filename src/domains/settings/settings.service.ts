@@ -63,7 +63,6 @@ export class SettingsService {
   }
 
   public async getGlobalSettings(): Promise<IRegionSettings> {
-    this.logger.debug('[getGlobalSettings]');
     return this.settingsRepository.globalSettings();
   }
 

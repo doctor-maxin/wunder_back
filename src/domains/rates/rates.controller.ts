@@ -1,4 +1,4 @@
-import { Controller, Get, Query, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Query, BadRequestException, Body, Post } from '@nestjs/common';
 import { RatesService } from './services/rates.service';
 import { Public } from '../../common/decorators/public.decorator';
 import {
@@ -18,11 +18,13 @@ import {
 } from './entities/rates-filters.entity';
 import { BadGateway } from '../../common/schemas/bad-gateway';
 import { RatesResponse } from './entities/rates-response';
+import { RateEntity } from './entities/rate.entity';
+import { CreateRateDto } from './dtos/create-rate.dto';
 
 @ApiTags('RATES API')
 @Controller('rates')
 export class RatesController {
-  constructor(private readonly ratesService: RatesService) {}
+  constructor(private readonly ratesService: RatesService) { }
 
   @Get()
   @Public()
@@ -54,6 +56,17 @@ export class RatesController {
       array,
     };
   }
+
+  @ApiBearerAuth()
+  @ApiBadRequestResponse({ type: BadGateway })
+  @ApiUnauthorizedResponse({ type: UnAuthorized })
+  @ApiOperation({ summary: 'Добавление курса валют' })
+  @ApiOkResponse({ type: RateEntity })
+  @Post()
+  public async addRecord(@Body() body: CreateRateDto): Promise<RateEntity> {
+    return this.ratesService.addRecord(body)
+  }
+
 
   @Get('/fetch')
   @ApiOperation({ summary: 'Запустить обновление курсов валют' })

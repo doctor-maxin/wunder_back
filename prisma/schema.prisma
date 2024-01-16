@@ -130,6 +130,8 @@ model Settings {
   telPhone            String?
   regionId            Int?
   region              Region?   @relation(fields: [regionId], references: [id])
+  complaintEmail      String?   
+  complaintForm       Boolean   @default(false)
   global              Boolean   @default(false)
   ratesAdds           Float     @default(0)
   freeHours           Int       @default(0)
@@ -261,6 +263,7 @@ model Contract {
   systemSettings  CustomerToSystemSettings[]
   documents       Document[]
   accounts        Account[]
+  discounts       AccumulativeDiscount[]
 }
 
 model Document {
@@ -352,6 +355,17 @@ model KnowledgeCategory {
   sort  Int         @default(500)
   name  String      @db.VarChar(64)
   posts Knowledge[]
+}
+
+model AccumulativeDiscount {
+  id        Int     @id @default(autoincrement())
+  amount    Int 
+  contractId  Int
+  period    String
+  discount  Float
+  system    String
+
+  contract  Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 }
 
 enum SignedDocumentsStatus {

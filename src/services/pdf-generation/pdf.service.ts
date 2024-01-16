@@ -116,6 +116,7 @@ export class PdfService {
     };
     const browser = await puppeteer.launch({
       headless: 'new',
+
       args: ['--no-sandbox'],
     });
     const page = await browser.newPage();
@@ -163,7 +164,7 @@ export class PdfService {
   ): ExtendedInvoiceLines {
     return lines.map((line) => {
       const luneSum = line.accounts.reduce((acc, item) => (acc += item.sum), 0);
-      const totalVat = luneSum * (vat / 100);
+      const totalVat = luneSum * (vat / (100 + vat));
       let lineType = 'контекстной';
       if (
         [
@@ -181,7 +182,7 @@ export class PdfService {
         sum: luneSum,
         type: lineType,
         vat,
-        total: luneSum + totalVat,
+        total: luneSum - totalVat,
       };
     });
   }

@@ -16,7 +16,7 @@ import {
 } from '../../common/interfaces/user.interface';
 import { TaskType } from '../../common/types/taskType.enum';
 import { CreateWaitingTaskDto } from './dto/create-waiting-task.dto';
-import moment from 'moment';
+import * as moment from 'moment/moment';
 import { ITask } from '../../common/interfaces/task.interface';
 import { WrapperType } from '../../common/types/wrapper';
 import { WaitingTaskRepository } from './repositories/waiting-task.repository';

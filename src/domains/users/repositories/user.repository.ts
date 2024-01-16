@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   IAdmin,
   ICustomer,
@@ -22,6 +22,7 @@ import { UserCustomerEntity } from '../entity/user.entity';
 @Injectable()
 export class UserRepository {
   constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(UserRepository.name);
 
   public async updatePassword(
     userId: number,
@@ -97,6 +98,7 @@ export class UserRepository {
         email: data.email,
       },
     });
+    this.logger.debug('[updateCustomer]', data);
     console.log('data', data.customer.groupId);
     if (data.customer.groupId) {
       await this.prisma.customer.update({
@@ -117,7 +119,15 @@ export class UserRepository {
         id: data.id,
       },
       include: {
-        customer: true,
+        customer: {
+          include: {
+            customerGroup: {
+              select: {
+                companyName: true,
+              },
+            },
+          },
+        },
       },
     });
   }
@@ -140,7 +150,15 @@ export class UserRepository {
       },
       include: {
         admin: true,
-        customer: true,
+        customer: {
+          include: {
+            customerGroup: {
+              select: {
+                companyName: true,
+              },
+            },
+          },
+        },
         group: true,
       },
     });

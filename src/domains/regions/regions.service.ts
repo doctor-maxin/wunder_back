@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RegionsRepository } from './regions.repository';
 import { RegionWithSettings } from './entity/region-with-settings.entity';
@@ -14,16 +14,21 @@ import {
 } from '../settings/entities/region-settings.entity';
 import { SettingsRepository } from '../settings/repositories/settings.repository';
 import { SystemSettingsRepository } from '../settings/repositories/system-settings.repository';
+import { CreateComplaintDto } from '../../common/dtos/create-complaint.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ON_COMPLAINT } from '../../common/events/events';
 
 @Injectable()
 export class RegionsService {
   private systemSettingsRepository: SystemSettingsRepository;
+  private readonly logger = new Logger(RegionsService.name)
 
   constructor(
     private prisma: PrismaService,
     public readonly regionRepository: RegionsRepository,
     private readonly settingsRepository: SettingsRepository,
-  ) {}
+    private readonly eventEmitter: EventEmitter2
+  ) { }
 
   public async getRegionsWithSettings(): Promise<RegionWithSettings[]> {
     return this.regionRepository.regionWithSettings();
@@ -146,25 +151,25 @@ export class RegionsService {
           lines.map((line) => {
             return line.id
               ? this.prisma.sysemSettingsLine.update({
-                  where: {
-                    id: line.id,
-                  },
-                  data: {
-                    discount: line.discount || 0,
-                    commission: line.commission || 0,
-                    fromAmount: parseFloat(line.fromAmount),
-                    toAmount: parseFloat(line.toAmount),
-                  },
-                })
+                where: {
+                  id: line.id,
+                },
+                data: {
+                  discount: line.discount || 0,
+                  commission: line.commission || 0,
+                  fromAmount: parseFloat(line.fromAmount),
+                  toAmount: parseFloat(line.toAmount),
+                },
+              })
               : this.prisma.sysemSettingsLine.create({
-                  data: {
-                    ...line,
-                    fromAmount: parseFloat(line.fromAmount || 0),
-                    toAmount: parseFloat(line.toAmount || 0),
-                    commission: parseInt(line.commission || 0),
-                    discount: parseInt(line.discount || 0),
-                  },
-                });
+                data: {
+                  ...line,
+                  fromAmount: parseFloat(line.fromAmount || 0),
+                  toAmount: parseFloat(line.toAmount || 0),
+                  commission: parseInt(line.commission || 0),
+                  discount: parseInt(line.discount || 0),
+                },
+              });
           }),
         );
       }
@@ -242,10 +247,22 @@ export class RegionsService {
     }
   }
 
+  public async createComplaint(data: CreateComplaintDto) {
+    const settings = await this.settingsRepository.globalSettings()
+    this.logger.log('Отправка жалобы с темой: ' + data.theme)
+
+    this.eventEmitter.emitAsync(ON_COMPLAINT, {
+      content: data.content,
+      subject: data.theme,
+      to: settings.complaintEmail
+    })
+  }
+
   private async updateRegionSettings(
     settings: Omit<RegionSettingEntity, 'contractId' | 'regionId'>,
     settingsId: number,
   ): Promise<RegionSettingEntity> {
+    console.log(settings.complaintEmail)
     return (await this.prisma.settings.update({
       where: { id: settingsId },
       data: {
@@ -265,6 +282,8 @@ export class RegionsService {
         whatappPhone: settings.whatappPhone,
         whatappText: settings.whatappText,
         telPhone: settings.telPhone,
+        complaintEmail: settings.complaintEmail,
+        complaintForm: settings.complaintForm
       },
     })) as unknown as RegionSettingEntity;
   }

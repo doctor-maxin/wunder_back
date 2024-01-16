@@ -117,14 +117,20 @@ export class AuthService {
   public async updateUser(
     data: UserCustomerEntity | UserAdminEntity | UserGroupEntity,
   ): Promise<UserCustomerEntity | UserAdminEntity | UserGroupEntity> {
-    data.secret = await this.hashService.hashData(data.secret);
+    const user = await this.userRepository.findById(data.id);
+    if (user.secret !== data.secret)
+      data.secret = await this.hashService.hashData(data.secret);
+    this.logger.debug(`[updateUser]`, data);
 
-    if (data.role === Role.ADMIN && data instanceof UserAdminEntity) {
-      return await this.userRepository.updateAdmin(data);
-    } else if (data.role === Role.GROUP && data instanceof UserGroupEntity) {
-      return await this.userRepository.updateCustomerGroup(data);
-    } else if (data instanceof UserCustomerEntity) {
-      return await this.userRepository.updateCustomer(data);
+    if (data.role === Role.ADMIN) {
+      //@ts-ignore
+      return this.userRepository.updateAdmin(data);
+    } else if (data.role === Role.GROUP) {
+      //@ts-ignore
+      return this.userRepository.updateCustomerGroup(data);
+    } else {
+      //@ts-ignore
+      return this.userRepository.updateCustomer(data);
     }
   }
 
@@ -252,7 +258,7 @@ export class AuthService {
         newCustomer,
         regionSettings,
         data.customerCandidateId,
-        // remoteTask.id,
+        remoteTask.id,
       ),
     );
 

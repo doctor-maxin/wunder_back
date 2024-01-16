@@ -33,7 +33,7 @@ export class CustomerService {
     private readonly userRepository: UserRepository,
     private readonly contractRepository: ContractsRepository,
     private readonly emailService: EmailService,
-  ) {}
+  ) { }
 
   public async getCustomerContracts(
     customerId: number,
@@ -96,6 +96,10 @@ export class CustomerService {
     };
   }
 
+  public async removeCandidate(id: number): Promise<void> {
+    return this.customerCandidateRepository.deleteCustomer(id)
+  }
+
   public async customerCandidate(
     customerCandidateId: number,
   ): Promise<CustomerCandidateEntity | void> {
@@ -136,10 +140,12 @@ export class CustomerService {
     return customer;
   }
 
-  public prepareFilters(filters: Filters): CustomerFiltersDto {
+  public prepareFilters(page: string, limit: string, query?: string): CustomerFiltersDto {
+    const take = Number(limit ?? 10)
+    const skip = (Number(page) - 1) * take
     const params = {
-      take: filters.limit,
-      skip: filters.skip,
+      take,
+      skip,
       orderBy: {
         createdAt: Prisma.SortOrder.desc,
       },
@@ -168,56 +174,56 @@ export class CustomerService {
       },
       where: undefined,
     };
-    if (filters.query) {
+    if (query) {
       params.where = {
         OR: [
           {
-            companyName: { contains: filters.query },
+            companyName: { contains: query },
           },
           {
-            companyAddress: { contains: filters.query },
+            companyAddress: { contains: query },
           },
           {
-            companyPhoneNumber: { contains: filters.query },
+            companyPhoneNumber: { contains: query },
           },
           {
-            contactPhoneNumber: { contains: filters.query },
+            contactPhoneNumber: { contains: query },
           },
           {
-            companyTaxNumber: { contains: filters.query },
+            companyTaxNumber: { contains: query },
           },
           {
-            responsiblePersonFullName: { contains: filters.query },
+            responsiblePersonFullName: { contains: query },
           },
           {
-            responsiblePersonPosition: { contains: filters.query },
+            responsiblePersonPosition: { contains: query },
           },
           {
-            companyEmail: { contains: filters.query },
+            companyEmail: { contains: query },
           },
           {
-            contactEmail: { contains: filters.query },
+            contactEmail: { contains: query },
           },
           {
-            contactName: { contains: filters.query },
+            contactName: { contains: query },
           },
           {
-            accountNumber: { contains: filters.query },
+            accountNumber: { contains: query },
           },
           {
-            BIC: { contains: filters.query },
+            BIC: { contains: query },
           },
           {
-            bankAddress: { contains: filters.query },
+            bankAddress: { contains: query },
           },
           {
-            bankName: { contains: filters.query },
+            bankName: { contains: query },
           },
         ],
       };
-      if (Number.isInteger(parseInt(filters.query))) {
+      if (Number.isInteger(parseInt(query))) {
         params.where.OR.push({
-          planFixId: { equals: parseInt(filters.query) },
+          planFixId: { equals: parseInt(query) },
         });
       }
     }

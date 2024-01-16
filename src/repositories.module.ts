@@ -14,6 +14,7 @@ import { RatesRepository } from './domains/rates/rates.respository';
 import { SystemRepository } from './domains/systems/system.repository';
 import { InvoiceRepository } from './domains/invoices/repositories/invoice.repository';
 import { InvoiceDocumentRepository } from './domains/invoices/repositories/invoice-document.repository';
+import { AccumulativeDiscountRepository } from './domains/accumulative-discount/accumulative-discount.repository'
 
 @Module({
   providers: [
@@ -32,6 +33,7 @@ import { InvoiceDocumentRepository } from './domains/invoices/repositories/invoi
     SystemRepository,
     InvoiceRepository,
     InvoiceDocumentRepository,
+    AccumulativeDiscountRepository
   ],
   exports: [
     RegionsRepository,
@@ -49,6 +51,7 @@ import { InvoiceDocumentRepository } from './domains/invoices/repositories/invoi
     SystemRepository,
     InvoiceRepository,
     InvoiceDocumentRepository,
+    AccumulativeDiscountRepository
   ],
 })
-export class RepositoriesModule {}
+export class RepositoriesModule { }

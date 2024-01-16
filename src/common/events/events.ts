@@ -14,3 +14,6 @@ export const INVOICE_GENERATE_BILL = 'invoice.generate.bill';
 export const INVOICE_GENERATE_BILL_SUCCESS = 'invoice.generate.bill.success';
 export const INVOICE_GENERATE_ACT = 'invoice.generate.act';
 export const INVOICE_GENERATE_ACT_SUCCESS = 'invoice.generate.act.success';
+
+
+export const ON_COMPLAINT = 'complaint.create';
